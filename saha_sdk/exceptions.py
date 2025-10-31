@@ -1,7 +1,7 @@
 class SahaRobotikAPIError(Exception):
     """
-    Base class for general API errors.  
-    All specific/custom error classes should inherit from this class.
+    Base class for general API errors.
+    All custom error classes should inherit from this class.
     """
 
     def __init__(
@@ -40,15 +40,15 @@ class SahaRobotikAPIError(Exception):
         )
 
 class BadRequestError(SahaRobotikAPIError):
-    """400 Bad Request – Invalid or malformed request sent."""
+    """400 Bad Request – The request was invalid or malformed."""
     pass
 
 class UnauthorizedError(SahaRobotikAPIError):
-    """401 Unauthorized – Authentication failed or missing API key."""
+    """401 Unauthorized – Authentication failed or API key is missing."""
     pass
 
 class ForbiddenError(SahaRobotikAPIError):
-    """403 Forbidden – The API key does not have permission to access this resource."""
+    """403 Forbidden – The API key does not have access to this resource."""
     pass
 
 class NotFoundError(SahaRobotikAPIError):
@@ -60,9 +60,9 @@ class InternalServerError(SahaRobotikAPIError):
     pass
 
 class CreatedSuccess(SahaRobotikAPIError):
-    """201 Created – The resource was successfully created. (Usually not raised, informational only)"""
+    """201 Created – Resource successfully created. (Usually not raised; informational)"""
     pass
 
 class ServerError(SahaRobotikAPIError):
-    """Sunucu hatası"""
+    """Server error"""
     pass

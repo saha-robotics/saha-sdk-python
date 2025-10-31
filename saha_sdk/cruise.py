@@ -1,146 +1,149 @@
-# saharobotik/cruise.py
-
 from .client import Robot
+from .models import RobotRouteModel, CruiseModel, CruiseRequestModel, CruiseControlRequestModel, ResponseModel
+from typing import List
 
-
-def get_all_cruises(client: Robot):
+def get_default_cruise_route(client: Robot) -> RobotRouteModel:
     """
-    Retrieves all routes defined for the robot.
+    Get the default cruise route for the robot.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: All routes
+        RobotRouteModel: Default cruise route information
     """
-    return client.get("/api/v1/cruises")
+    response = client.get("/api/v1/config/default-route")
+    return RobotRouteModel(**response)
 
-
-def add_cruise(client: Robot, name: str, waypoints: list[str], site: str, floor: str):
+def set_default_cruise_route(client: Robot, route_model: RobotRouteModel) -> ResponseModel:
     """
-    Adds a new cruise route.
+    Set the default cruise route for the robot.
 
     Args:
         client (Robot): API client
-        name (str): Name of the cruise route
-        waypoints (list[str]): List of waypoint identifiers on the route
-        site (str): Site name
-        floor (str): Floor name
+        route_model (RobotRouteModel): Route to set as default.
 
     Returns:
-        dict: Result of the operation
+        ResponseModel: Result of the request
     """
-    cruise_data = {
-        "name": name,
-        "waypoints": waypoints,
-        "site": site,
-        "floor": floor
-    }
-    return client.post("/api/v1/cruises", data=cruise_data)
+    response = client.post("/api/v1/config/default-route", data=route_model.dict())
+    return ResponseModel(**response)
 
-def get_cruises_by_site(client: Robot, site: str):
+def get_all_cruises(client: Robot) -> List[CruiseModel]:
     """
-    Retrieves routes defined for a specific site.
-
-    Args:
-        client (Robot): API client
-        site (str): Site name
-
-    Returns:
-        dict: Routes belonging to the specified site
-    """
-    return client.get(f"/api/v1/cruises/{site}")
-
-
-def get_cruises_by_floor(client: Robot, site: str, floor: str):
-    """
-    Retrieves routes defined for a specific site and floor.
-
-    Args:
-        client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-
-    Returns:
-        dict: Routes based on the specified floor
-    """
-    return client.get(f"/api/v1/cruises/{site}/{floor}")
-
-
-def get_cruise_by_name(client: Robot, site: str, floor: str, name: str):
-    """
-    Retrieves a specific route by site, floor, and name.
-
-    Args:
-        client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-        name (str): Route name
-
-    Returns:
-        dict: The requested route
-    """
-    return client.get(f"/api/v1/cruises/{site}/{floor}/{name}")
-
-
-def update_cruise(client: Robot, site: str, floor: str, name: str, cruise_data: dict):
-    """
-    Updates a specific route.
-
-    Args:
-        client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-        name (str): Route name
-        cruise_data (dict): Updated route information
-
-    Returns:
-        dict: Update result
-    """
-    return client.patch(f"/api/v1/cruises/{site}/{floor}/{name}", data=cruise_data)
-
-
-def delete_cruise(client: Robot, site: str, floor: str, name: str):
-    """
-    Deletes a specific route.
-
-    Args:
-        client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-        name (str): Route name
-
-    Returns:
-        dict: Deletion result
-    """
-    return client.delete(f"/api/v1/cruises/{site}/{floor}/{name}")
-
-
-def get_default_cruise_route(client: Robot):
-    """
-    Retrieves the robot's default route.
+    Get the list of all cruises for the robot.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: Default route information
+        List[CruiseModel]: List of all cruises
     """
-    return client.get("/api/v1/config/default-route")
+    response = client.get("/api/v1/cruises")
+    return [CruiseModel(**item) for item in response]
 
-
-def set_default_cruise_route(client: Robot, route_data: dict):
+def add_cruise(client: Robot, cruise_request: CruiseRequestModel) -> ResponseModel:
     """
-    Sets the robot's default route.
+    Add a new cruise to the robot.
 
     Args:
         client (Robot): API client
-        route_data (dict): Route information to be set as default
-            {
-              "route": "Route Name"
-            }
+        cruise_request (CruiseRequestModel): Cruise information to add.
 
     Returns:
-        dict: Result of the operation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/config/default-route", data=route_data)
+    response = client.post("/api/v1/cruises", data=cruise_request.dict())
+    return ResponseModel(**response)
+
+def start_cruise(client: Robot, cruise_control_request: CruiseControlRequestModel) -> ResponseModel:
+    """
+    Start a cruise on the robot.
+
+    Args:
+        client (Robot): API client
+        cruise_control_request (CruiseControlRequestModel): Cruise control information.
+
+    Returns:
+        ResponseModel: Result of the request
+    """
+    response = client.post("/api/v1/cruises/control", data=cruise_control_request.dict())
+    return ResponseModel(**response)
+
+def get_cruises_by_site(client: Robot, site: str) -> List[CruiseModel]:
+    """
+    Get the list of cruises filtered by site.
+
+    Args:
+        client (Robot): API client
+        site (str): Site to filter cruises by.
+
+    Returns:
+        List[CruiseModel]: List of cruises for the specified site
+    """
+    response = client.get(f"/api/v1/cruises/{site}")
+    return [CruiseModel(**item) for item in response]
+
+def get_cruises_by_site_and_floor(client: Robot, site: str, floor: str) -> List[CruiseModel]:
+    """
+    Get the list of cruises filtered by site and floor.
+
+    Args:
+        client (Robot): API client
+        site (str): Site to filter cruises by.
+        floor (str): Floor to filter cruises by.
+
+    Returns:
+        List[CruiseModel]: List of cruises for the specified site and floor
+    """
+    response = client.get(f"/api/v1/cruises/{site}/{floor}")
+    return [CruiseModel(**item) for item in response]
+
+def get_cruise(client: Robot, site: str, floor: str, name: str) -> CruiseModel:
+    """
+    Get a specific cruise by its site, floor, and name.
+
+    Args:
+        client (Robot): API client
+        site (str): The cruise's site.
+        floor (str): The cruise's floor.
+        name (str): The cruise's name.
+
+    Returns:
+        CruiseModel: Requested cruise information
+    """
+    response = client.get(f"/api/v1/cruises/{site}/{floor}/{name}")
+    return CruiseModel(**response)
+
+def update_cruise(client: Robot, site: str, floor: str, name: str, cruise_request: CruiseRequestModel) -> ResponseModel:
+    """
+    Update a specific cruise by name.
+
+    Args:
+        client (Robot): API client
+        site (str): The cruise's site.
+        floor (str): The cruise's floor.
+        name (str): The cruise's name.
+        cruise_request (CruiseRequestModel): Updated cruise information.
+
+    Returns:
+        ResponseModel: Result of the request
+    """
+    response = client.patch(f"/api/v1/cruises/{site}/{floor}/{name}", data=cruise_request.dict())
+    return ResponseModel(**response)
+
+def delete_cruise(client: Robot, site: str, floor: str, name: str) -> ResponseModel:
+    """
+    Delete a specific cruise by name.
+
+    Args:
+        client (Robot): API client
+        site (str): The cruise's site.
+        floor (str): The cruise's floor.
+        name (str): The cruise's name.
+
+    Returns:
+        ResponseModel: Result of the request
+    """
+    response = client.delete(f"/api/v1/cruises/{site}/{floor}/{name}")
+    return ResponseModel(**response)

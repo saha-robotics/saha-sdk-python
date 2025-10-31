@@ -9,71 +9,84 @@ from .exceptions import (
     ServerError,
     BadRequestError
 )
+from .models import ResponseModel
 
 
 class Robot:
     """A client for the Saha Robotik API."""
-    def __init__(self, base_url: str, api_key: str):
-        """Initializes a new client.
+    def __init__(self, base_url: str, api_key: Optional[str] = None):
+        """Initialize a new client.
 
         Args:
             base_url: The base URL of the Saha Robotik API.
-            api_key: Your API key.
+            api_key: Your API key (optional). Can be set later via set_api_key().
         """
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
-        self.headers = {
-            "x-api-key": self.api_key,
-            "Content-Type": "application/json"
-        }
+        self._update_headers()
+
+    def _update_headers(self):
+        """Update request headers according to the current API key."""
+        self.headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            self.headers["x-api-key"] = self.api_key
+
+    def set_api_key(self, api_key: str):
+        """Set or update the API key used for authentication.
+
+        Args:
+            api_key: Your API key.
+        """
+        self.api_key = api_key
+        self._update_headers()
 
     def _full_url(self, path: str) -> str:
         return f"{self.base_url}{path}"
 
     def get(self, path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Sends a GET request to the API.
+        """Send a GET request to the API.
 
         Args:
             path: The path of the API endpoint.
-            params: The query parameters.
+            params: Query parameters.
 
         Returns:
-            The JSON response from the API.
+            JSON response from the API.
         """
         return self._request("GET", path, params=params)
 
     def post(self, path: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Sends a POST request to the API.
+        """Send a POST request to the API.
 
         Args:
             path: The path of the API endpoint.
-            data: The request body.
+            data: Request body.
 
         Returns:
-            The JSON response from the API.
+            JSON response from the API.
         """
         return self._request("POST", path, json=data)
 
     def patch(self, path: str, data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Sends a PATCH request to the API.
+        """Send a PATCH request to the API.
 
         Args:
             path: The path of the API endpoint.
-            data: The request body.
+            data: Request body.
 
         Returns:
-            The JSON response from the API.
+            JSON response from the API.
         """
         return self._request("PATCH", path, json=data)
 
     def delete(self, path: str) -> Dict[str, Any]:
-        """Sends a DELETE request to the API.
+        """Send a DELETE request to the API.
 
         Args:
             path: The path of the API endpoint.
 
         Returns:
-            The JSON response from the API.
+            JSON response from the API.
         """
         return self._request("DELETE", path)
 

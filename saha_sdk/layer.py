@@ -1,61 +1,61 @@
-# saharobotik/layer.py
+from .client import Robot
+from .models import LayersModel, ResponseModel
+from typing import List
 
-from .client import SahaRobotikClient
-
-
-def get_all_layers(client: SahaRobotikClient):
+def get_all_layers(client: Robot) -> List[LayersModel]:
     """
-    Lists all layer data in the system.
+    Get the list of all layers of the robot.
 
     Args:
-        client (SahaRobotikClient): API client
+        client (Robot): API client
 
     Returns:
-        dict: List of layers
+        List[LayersModel]: List of all layers
     """
-    return client.get("/api/v1/layers")
+    response = client.get("/api/v1/layers")
+    return [LayersModel(**item) for item in response]
 
-
-def get_layers_by_site(client: SahaRobotikClient, site: str):
+def get_layers_by_site(client: Robot, site: str) -> List[LayersModel]:
     """
-    Retrieves all layers defined for a specific site.
+    Get the list of layers filtered by site.
 
     Args:
-        client (SahaRobotikClient): API client
-        site (str): Site name
+        client (Robot): API client
+        site (str): Site to filter layers by.
 
     Returns:
-        dict: Layers belonging to the specified site
+        List[LayersModel]: List of layers for the specified site
     """
-    return client.get(f"/api/v1/layers/{site}")
+    response = client.get(f"/api/v1/layers/{site}")
+    return [LayersModel(**item) for item in response]
 
-
-def get_layers_by_floor(client: SahaRobotikClient, site: str, floor: str):
+def get_layers_by_site_and_floor(client: Robot, site: str, floor: str) -> List[LayersModel]:
     """
-    Retrieves layers defined for a specific site and floor.
+    Get the list of layers filtered by site and floor.
 
     Args:
-        client (SahaRobotikClient): API client
-        site (str): Site name
-        floor (str): Floor name
+        client (Robot): API client
+        site (str): Site to filter layers by.
+        floor (str): Floor to filter layers by.
 
     Returns:
-        dict: List of layers based on the specified floor
+        List[LayersModel]: List of layers for the specified site and floor
     """
-    return client.get(f"/api/v1/layers/{site}/{floor}")
+    response = client.get(f"/api/v1/layers/{site}/{floor}")
+    return [LayersModel(**item) for item in response]
 
-
-def get_layer_by_uid(client: SahaRobotikClient, site: str, floor: str, uid: str):
+def get_layer(client: Robot, site: str, floor: str, uid: str) -> LayersModel:
     """
-    Retrieves detailed layer data for a specific layer UID.
+    Get a specific layer by its site, floor, and UID.
 
     Args:
-        client (SahaRobotikClient): API client
-        site (str): Site name
-        floor (str): Floor name
-        uid (str): Unique identifier (UID) of the layer
+        client (Robot): API client
+        site (str): The layer's site.
+        floor (str): The layer's floor.
+        uid (str): The layer's UID.
 
     Returns:
-        dict: Detailed layer data
+        LayersModel: Requested layer information
     """
-    return client.get(f"/api/v1/layers/{site}/{floor}/{uid}")
+    response = client.get(f"/api/v1/layers/{site}/{floor}/{uid}")
+    return LayersModel(**response)
