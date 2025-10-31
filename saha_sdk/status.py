@@ -1,9 +1,7 @@
-# saharobotik/status.py
+from .client import Robot
+from .models import RobotStatus, RobotHardwareStatus, RobotInfoModel
 
-from .client import SahaRobotikClient
-
-
-def get_robot_status(client: SahaRobotikClient):
+def get_robot_status(client: Robot) -> RobotStatus:
     """
     Retrieves the robot's general status information.
 
@@ -13,12 +11,12 @@ def get_robot_status(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: General robot status
+        RobotStatus: General robot status
     """
-    return client.get("/api/v1/status")
+    response = client.get("/api/v1/status")
+    return RobotStatus(**response)
 
-
-def get_hardware_status(client: SahaRobotikClient):
+def get_hardware_status(client: Robot) -> RobotHardwareStatus:
     """
     Retrieves the health and connection status of the robot's hardware components.
 
@@ -28,6 +26,20 @@ def get_hardware_status(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: Hardware status information
+        RobotHardwareStatus: Hardware status information
     """
-    return client.get("/api/v1/status/hardware")
+    response = client.get("/api/v1/status/hardware")
+    return RobotHardwareStatus(**response)
+
+def get_robot_info(client: Robot) -> RobotInfoModel:
+    """
+    Retrieves the information of the robot including robot ID, name, model, software version, hardware version, site, floor, and current mission details.
+
+    Args:
+        client (Robot): API client
+
+    Returns:
+        RobotInfoModel: Robot information
+    """
+    response = client.get("/api/v1/status/info")
+    return RobotInfoModel(**response)

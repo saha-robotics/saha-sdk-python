@@ -1,98 +1,99 @@
-# saharobotik/profile.py
+from .client import Robot
+from .models import RobotProfiles, RobotProfileModel, ResponseModel, RobotModes, RobotModeModel
+from typing import List
 
-from .client import SahaRobotikClient
-
-def get_profiles(client: SahaRobotikClient):
+def get_robot_profiles(client: Robot) -> RobotProfiles:
     """
-    Retrieves the robot's current profile settings (environment, behavior, speed).
+    Get the current robot profiles including available speed, behavior, and environment profiles.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: Profile settings
+        RobotProfiles: Robot profiles information
     """
-    return client.get("/api/v1/profile")
+    response = client.get("/api/v1/profile")
+    return RobotProfiles(**response)
 
-
-def set_environment_profile(client: SahaRobotikClient, profile_name: str):
+def change_environment_profile(client: Robot, profile_model: RobotProfileModel) -> ResponseModel:
     """
-    Changes the robot's environment profile.
+    Change the environment profile of the robot.
 
     Args:
         client (Robot): API client
-        profile_name (str): Name of the environment profile to set
+        profile_model (RobotProfileModel): Environment profile to set.
 
     Returns:
-        dict: Result of the operation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/profile/environment", data={"profile_name": profile_name})
+    response = client.post("/api/v1/profile/environment", data=profile_model.dict())
+    return ResponseModel(**response)
 
-
-def set_behavior_profile(client: SahaRobotikClient, profile_name: str):
+def change_behavior_profile(client: Robot, profile_model: RobotProfileModel) -> ResponseModel:
     """
-    Changes the robot's behavior profile.
+    Change the behavior profile of the robot.
 
     Args:
         client (Robot): API client
-        profile_name (str): Name of the behavior profile to set
+        profile_model (RobotProfileModel): Behavior profile to set.
 
     Returns:
-        dict: Result of the operation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/profile/behavior", data={"profile_name": profile_name})
+    response = client.post("/api/v1/profile/behavior", data=profile_model.dict())
+    return ResponseModel(**response)
 
-
-def set_speed_profile(client: SahaRobotikClient, profile_name: str):
+def change_speed_profile(client: Robot, profile_model: RobotProfileModel) -> ResponseModel:
     """
-    Changes the robot's speed profile.
+    Change the speed profile of the robot.
 
     Args:
         client (Robot): API client
-        profile_name (str): Name of the speed profile to set
+        profile_model (RobotProfileModel): Speed profile to set.
 
     Returns:
-        dict: Result of the operation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/profile/speed", data={"profile_name": profile_name})
+    response = client.post("/api/v1/profile/speed", data=profile_model.dict())
+    return ResponseModel(**response)
 
-
-def get_modes(client: SahaRobotikClient):
+def get_robot_modes(client: Robot) -> RobotModes:
     """
-    Lists all operating modes supported by the robot (e.g., patrol, delivery, custom).
+    Get the available robot modes.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: List of available modes
+        RobotModes: Robot modes information
     """
-    return client.get("/api/v1/mode")
+    response = client.get("/api/v1/mode")
+    return RobotModes(**response)
 
-
-def set_mode(client: SahaRobotikClient, mode_data: dict):
+def set_robot_mode(client: Robot, mode_model: RobotModeModel) -> ResponseModel:
     """
-    Sets the robot's operating mode (e.g., 'auto', 'manual', 'delivery').
+    Set the robot mode.
 
     Args:
         client (Robot): API client
-        mode_data (dict): Mode data to set (e.g., {"mode": "delivery"})
+        mode_model (RobotModeModel): Robot mode to set.
 
     Returns:
-        dict: Result of the operation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/mode", data=mode_data)
+    response = client.post("/api/v1/mode", data=mode_model.dict())
+    return ResponseModel(**response)
 
-
-def delete_mode(client: SahaRobotikClient, name: str):
+def remove_robot_mode(client: Robot, mode_model: RobotModeModel) -> ResponseModel:
     """
-    Removes a specific robot mode from the system.
+    Remove a robot mode.
 
     Args:
         client (Robot): API client
-        name (str): Name of the mode to delete
+        mode_model (RobotModeModel): Robot mode to remove.
 
     Returns:
-        dict: Result of the deletion operation
+        ResponseModel: Result of the request
     """
-    return client.delete(f"/api/v1/mode/{name}")
+    response = client.delete(f"/api/v1/mode/{mode_model.mode}", data=mode_model.dict())
+    return ResponseModel(**response)

@@ -1,35 +1,30 @@
-# saharobotik/ui.py
-
 from .client import Robot
+from .models import SpeechModel, ResponseModel
 
-def send_speech_command(client: SahaRobotikClient, text: str, lang: str = "tr"):
+def speak_text(client: Robot, speech_model: SpeechModel) -> ResponseModel:
     """
-    Sends a text-to-speech command to the robot.
+    Send a text to speech command to the robot.
 
     Args:
         client (Robot): API client
-        text (str): Text to speak
-        lang (str): Language code (default "tr")
+        speech_model (SpeechModel): Text and language code to speak.
 
     Returns:
-        dict: Result of the request
+        ResponseModel: Result of the request
     """
-    payload = {
-        "lang": lang,
-        "text": text
-    }
-    return client.post("/api/v1/ui/speech", data=payload)
+    response = client.post("/api/v1/ui/speech", data=speech_model.dict())
+    return ResponseModel(**response)
 
-
-def set_pixel_screen_video(client: SahaRobotikClient, url: str):
+def change_pixel_screen_video(client: Robot, url: str) -> ResponseModel:
     """
-    Sets the video to be shown on the robot's pixel screen.
+    Change the pixel screen video of the robot.
 
     Args:
         client (Robot): API client
-        url (str): URL of the MP4 video
+        url (str): MP4 file URL for the video.
 
     Returns:
-        dict: Result of the request
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/ui/screen/pixel", params={"url": url})
+    response = client.post(f"/api/v1/ui/screen/pixel?url={url}")
+    return ResponseModel(**response)

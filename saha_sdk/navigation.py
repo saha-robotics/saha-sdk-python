@@ -1,9 +1,8 @@
-# saharobotik/navigation.py
+from .client import Robot
+from .models import PathModel, Position, RobotState, RobotStopModel, SiteFloorModel, ResponseModel, GoalTargetModel, TwistModel
+from typing import Dict, Any
 
-from saharobotik.client import SahaRobotikClient
-
-
-def get_navigation_path(client: SahaRobotikClient):
+def get_navigation_path(client: Robot) -> PathModel:
     """
     Retrieves the robot's current planned navigation path.
 
@@ -11,12 +10,12 @@ def get_navigation_path(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: Navigation path information
+        PathModel: Navigation path information
     """
-    return client.get("/api/v1/navigation/path")
+    response = client.get("/api/v1/navigation/path")
+    return PathModel(**response)
 
-
-def get_navigation_path_stream(client: SahaRobotikClient):
+def get_navigation_path_stream(client: Robot) -> PathModel:
     """
     Enables continuous streaming of the navigation path.
 
@@ -24,12 +23,12 @@ def get_navigation_path_stream(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: Real-time navigation path stream data
+        PathModel: Real-time navigation path stream data
     """
-    return client.get("/api/v1/navigation/path/stream")
+    response = client.get("/api/v1/navigation/path/stream")
+    return PathModel(**response)
 
-
-def get_current_position(client: SahaRobotikClient):
+def get_current_position(client: Robot) -> RobotState:
     """
     Retrieves the robot's current position.
 
@@ -37,12 +36,12 @@ def get_current_position(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: X, Y coordinates and orientation information
+        RobotState: X, Y coordinates and orientation information
     """
-    return client.get("/api/v1/navigation/position")
+    response = client.get("/api/v1/navigation/position")
+    return RobotState(**response)
 
-
-def get_position_stream(client: SahaRobotikClient):
+def get_position_stream(client: Robot) -> RobotState:
     """
     Provides the robot's position data as a live stream.
 
@@ -50,26 +49,26 @@ def get_position_stream(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: Real-time position information
+        RobotState: Real-time position information
     """
-    return client.get("/api/v1/navigation/position/stream")
+    response = client.get("/api/v1/navigation/position/stream")
+    return RobotState(**response)
 
-
-def set_goal_pose(client: SahaRobotikClient, pose: dict):
+def set_goal_pose(client: Robot, pose: Position) -> ResponseModel:
     """
     Commands the robot to move to a specific X-Y position.
 
     Args:
         client (Robot): API client
-        pose (dict): Target position data (e.g., {"x": 1.0, "y": 2.0, "theta": 0.0})
+        pose (Position): Target position data (e.g., {"x": 1.0, "y": 2.0, "theta": 0.0})
 
     Returns:
-        dict: Result of the request
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/navigation/goal/pose", data=pose)
+    response = client.post("/api/v1/navigation/goal/pose", data=pose.dict())
+    return ResponseModel(**response)
 
-
-def set_goal_target(client: SahaRobotikClient, target_uid: str):
+def set_goal_target(client: Robot, target_uid: str) -> ResponseModel:
     """
     Directs the robot to a predefined target using its UID.
 
@@ -78,11 +77,12 @@ def set_goal_target(client: SahaRobotikClient, target_uid: str):
         target_uid (str): UID of the target
 
     Returns:
-        dict: Result of the request
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/navigation/goal/target", data={"target_uid": target_uid})
+    response = client.post("/api/v1/navigation/goal/target", data=GoalTargetModel(target_uid=target_uid).dict())
+    return ResponseModel(**response)
 
-def get_emergency_stop_status(client: SahaRobotikClient):
+def get_emergency_stop_status(client: Robot) -> RobotStopModel:
     """
     Checks whether the robot is in emergency stop state.
 
@@ -90,60 +90,63 @@ def get_emergency_stop_status(client: SahaRobotikClient):
         client (Robot): API client
 
     Returns:
-        dict: Emergency stop status
+        RobotStopModel: Emergency stop status
     """
-    return client.get("/api/v1/navigation/stop")
+    response = client.get("/api/v1/navigation/stop")
+    return RobotStopModel(**response)
 
-
-def stop_robot(client: SahaRobotikClient):
+def set_emergency_stop(client: Robot, stop_model: RobotStopModel) -> ResponseModel:
     """
-    Sends an emergency stop command to the robot.
+    Set the emergency stop status of the robot.
 
     Args:
         client (Robot): API client
+        stop_model (RobotStopModel): Emergency stop status data (e.g., {"stop": True})
 
     Returns:
-        dict: Result of the stop command
+        ResponseModel: Result of the stop command
     """
-    return client.post("/api/v1/navigation/stop")
+    response = client.post("/api/v1/navigation/stop", data=stop_model.dict())
+    return ResponseModel(**response)
 
-
-def send_safe_velocity(client: SahaRobotikClient, vel: dict):
+def send_safe_velocity(client: Robot, vel: TwistModel) -> ResponseModel:
     """
     Sends a safety-controlled velocity command to the robot.
 
     Args:
         client (Robot): API client
-        vel (dict): Velocity data, e.g., {"x": 0.5, "y": 0.0, "theta": 0.0}
+        vel (TwistModel): Velocity data, e.g., {"vel_x": 0.5, "vel_z": 0.0}
 
     Returns:
-        dict: Result data
+        ResponseModel: Result data
     """
-    return client.post("/api/v1/navigation/vel/safe", data=vel)
+    response = client.post("/api/v1/navigation/vel/safe", data=vel.dict())
+    return ResponseModel(**response)
 
-
-def send_velocity(client: SahaRobotikClient, vel: dict):
+def send_velocity(client: Robot, vel: TwistModel) -> ResponseModel:
     """
     Sends a direct velocity command to the robot (without safety control).
 
     Args:
         client (Robot): API client
-        vel (dict): Velocity data
+        vel (TwistModel): Velocity data
 
     Returns:
-        dict: Result data
+        ResponseModel: Result data
     """
-    return client.post("/api/v1/navigation/vel", data=vel)
+    response = client.post("/api/v1/navigation/vel", data=vel.dict())
+    return ResponseModel(**response)
 
-
-def start_localization(client: SahaRobotikClient):
+def start_localization(client: Robot, site_floor: SiteFloorModel) -> ResponseModel:
     """
     Starts the process to re-localize the robot's position.
 
     Args:
         client (Robot): API client
+        site_floor (SiteFloorModel): Site and floor information for localization.
 
     Returns:
-        dict: Result of the localization start request
+        ResponseModel: Result of the localization start request
     """
-    return client.post("/api/v1/navigation/localization")
+    response = client.post("/api/v1/navigation/localization", data=site_floor.dict())
+    return ResponseModel(**response)

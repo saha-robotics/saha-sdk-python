@@ -1,108 +1,108 @@
-# saharobotik/targets.py
+from .client import Robot
+from .models import TargetModel, TargetRequestModel, ResponseModel
+from typing import List
 
-from .client import SahaRobotikClient
-
-
-def get_all_targets(client: SahaRobotikClient):
+def get_all_targets(client: Robot) -> List[TargetModel]:
     """
-    Retrieves all defined target points of the robot.
+    Retrieve the list of all targets of the robot.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: List of all targets
+        List[TargetModel]: List of all targets
     """
-    return client.get("/api/v1/targets")
+    response = client.get("/api/v1/targets")
+    return [TargetModel(**item) for item in response]
 
-
-def add_target(client: SahaRobotikClient, target_data: dict):
+def add_target(client: Robot, target_request: TargetRequestModel) -> ResponseModel:
     """
-    Defines a new target.
+    Add a new target to the robot.
 
     Args:
         client (Robot): API client
-        target_data (dict): Target information (e.g., site, floor, name, pose, etc.)
+        target_request (TargetRequestModel): Target information to add.
 
     Returns:
-        dict: Result of the creation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/targets", data=target_data)
+    response = client.post("/api/v1/targets", data=target_request.dict())
+    return ResponseModel(**response)
 
-
-def get_targets_by_site(client: SahaRobotikClient, site: str):
+def get_targets_by_site(client: Robot, site: str) -> List[TargetModel]:
     """
-    Retrieves targets within a specific site.
+    Retrieve the list of targets filtered by site.
 
     Args:
         client (Robot): API client
-        site (str): Site name
+        site (str): The site to filter targets by.
 
     Returns:
-        dict: Targets belonging to the site
+        List[TargetModel]: List of targets for the specified site
     """
-    return client.get(f"/api/v1/targets/{site}")
+    response = client.get(f"/api/v1/targets/{site}")
+    return [TargetModel(**item) for item in response]
 
-
-def get_targets_by_floor(client: SahaRobotikClient, site: str, floor: str):
+def get_targets_by_site_and_floor(client: Robot, site: str, floor: str) -> List[TargetModel]:
     """
-    Retrieves targets defined for a specific site and floor.
+    Retrieve the list of targets filtered by site and floor.
 
     Args:
         client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
+        site (str): The site to filter targets by.
+        floor (str): The floor to filter targets by.
 
     Returns:
-        dict: List of targets by floor
+        List[TargetModel]: List of targets for the specified site and floor
     """
-    return client.get(f"/api/v1/targets/{site}/{floor}")
+    response = client.get(f"/api/v1/targets/{site}/{floor}")
+    return [TargetModel(**item) for item in response]
 
-
-def get_target_by_name(client: SahaRobotikClient, site: str, floor: str, name: str):
+def get_target(client: Robot, site: str, floor: str, name: str) -> TargetModel:
     """
-    Retrieves a specific target by site, floor, and name.
+    Retrieve a specific target by its site, floor, and name.
 
     Args:
         client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-        name (str): Target name
+        site (str): The site of the target.
+        floor (str): The floor of the target.
+        name (str): The name of the target.
 
     Returns:
-        dict: Target information
+        TargetModel: The requested target information
     """
-    return client.get(f"/api/v1/targets/{site}/{floor}/{name}")
+    response = client.get(f"/api/v1/targets/{site}/{floor}/{name}")
+    return TargetModel(**response)
 
-
-def update_target(client: SahaRobotikClient, site: str, floor: str, name: str, update_data: dict):
+def update_target(client: Robot, site: str, floor: str, name: str, target_request: TargetRequestModel) -> ResponseModel:
     """
-    Updates information of an existing target.
+    Update a specific target by its site, floor, and name.
 
     Args:
         client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-        name (str): Target name
-        update_data (dict): Updated fields
+        site (str): The site of the target.
+        floor (str): The floor of the target.
+        name (str): The name of the target.
+        target_request (TargetRequestModel): Updated target information.
 
     Returns:
-        dict: Result of the update
+        ResponseModel: Result of the request
     """
-    return client.patch(f"/api/v1/targets/{site}/{floor}/{name}", data=update_data)
+    response = client.patch(f"/api/v1/targets/{site}/{floor}/{name}", data=target_request.dict())
+    return ResponseModel(**response)
 
-
-def delete_target(client: SahaRobotikClient, site: str, floor: str, name: str):
+def delete_target(client: Robot, site: str, floor: str, name: str) -> ResponseModel:
     """
-    Deletes a specific target from the system.
+    Delete a specific target by its site, floor, and name.
 
     Args:
         client (Robot): API client
-        site (str): Site name
-        floor (str): Floor name
-        name (str): Target name
+        site (str): The site of the target.
+        floor (str): The floor of the target.
+        name (str): The name of the target.
 
     Returns:
-        dict: Result of the deletion
+        ResponseModel: Result of the request
     """
-    return client.delete(f"/api/v1/targets/{site}/{floor}/{name}")
+    response = client.delete(f"/api/v1/targets/{site}/{floor}/{name}")
+    return ResponseModel(**response)

@@ -1,101 +1,112 @@
-# saharobotik/task.py
+from .client import Robot
+from .models import TaskModel, TaskRequestModel, ResponseModel
+from typing import List
 
-from .client import SahaRobotikClient
-
-
-def get_all_tasks(client: SahaRobotikClient):
+def get_all_tasks(client: Robot) -> List[TaskModel]:
     """
-    Retrieves all tasks defined in the system.
+    Retrieve the list of all tasks of the robot.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: List of tasks
+        List[TaskModel]: List of all tasks
     """
-    return client.get("/api/v1/tasks")
+    response = client.get("/api/v1/tasks")
+    return [TaskModel(**item) for item in response]
 
-
-def create_or_update_task(client: SahaRobotikClient, task_data: dict):
+def create_task(client: Robot, task_request: TaskRequestModel) -> ResponseModel:
     """
-    Creates or updates a task with full task specification.
+    Create a new task or update an existing one.
 
     Args:
         client (Robot): API client
-        task_data (dict): Task body. Should include:
-            - timeout (int)
-            - type (str): e.g., "TABLE_SERVICE"
-            - activate (bool)
-            - task_index (int)
-            - target_uid (str)
-            - payload (list[bool])
-            - celebrating_name (str)
+        task_request (TaskRequestModel): Task information to create or update.
 
     Returns:
-        dict: API response
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/tasks", data=task_data)
+    response = client.post("/api/v1/tasks", data=task_request.dict())
+    return ResponseModel(**response)
 
-
-
-def get_task_by_id(client: SahaRobotikClient, task_uid: str):
+def get_task(client: Robot, task_uid: str) -> TaskModel:
     """
-    Retrieves a specific task by its UID.
+    Retrieve a specific task by its ID.
 
     Args:
         client (Robot): API client
-        task_uid (str): Unique identifier of the task
+        task_uid (str): The UID of the task.
 
     Returns:
-        dict: Task information
+        TaskModel: The requested task information
     """
-    return client.get(f"/api/v1/tasks/{task_uid}")
+    response = client.get(f"/api/v1/tasks/{task_uid}")
+    return TaskModel(**response)
 
-
-def update_task(client: SahaRobotikClient, task_uid: str, update_data: dict):
+def update_task(client: Robot, task_uid: str, task_request: TaskRequestModel) -> ResponseModel:
     """
-    Updates a specific task by UID.
+    Update a specific task by its ID.
 
     Args:
         client (Robot): API client
-        task_uid (str): Unique identifier of the task to update
-        update_data (dict): Fields to be updated. Should include:
-            - timeout (int)
-            - type (str): e.g., "TABLE_SERVICE"
-            - activate (bool)
-            - task_index (int)
-            - target_uid (str)
-            - payload (list[bool])
-            - celebrating_name (str)
+        task_uid (str): The UID of the task.
+        task_request (TaskRequestModel): Updated task information.
 
     Returns:
-        dict: API response
+        ResponseModel: Result of the request
     """
-    return client.patch(f"/api/v1/tasks/{task_uid}", data=update_data)
+    response = client.patch(f"/api/v1/tasks/{task_uid}", data=task_request.dict())
+    return ResponseModel(**response)
 
-
-def delete_task(client: SahaRobotikClient, task_uid: str):
+def delete_task(client: Robot, task_uid: str) -> ResponseModel:
     """
-    Deletes a specific task.
+    Delete a specific task by its ID.
 
     Args:
         client (Robot): API client
-        task_uid (str): Identifier of the task to delete
+        task_uid (str): The UID of the task.
 
     Returns:
-        dict: Result of the deletion
+        ResponseModel: Result of the request
     """
-    return client.delete(f"/api/v1/tasks/{task_uid}")
+    response = client.delete(f"/api/v1/tasks/{task_uid}")
+    return ResponseModel(**response)
 
-
-def pause_task(client: SahaRobotikClient):
+def pause_mission(client: Robot) -> ResponseModel:
     """
-    Temporarily pauses the robot's current task.
+    Pause the robot's current mission.
 
     Args:
         client (Robot): API client
 
     Returns:
-        dict: Result of the pause operation
+        ResponseModel: Result of the request
     """
-    return client.post("/api/v1/task/pause")
+    response = client.post("/api/v1/tasks/pause")
+    return ResponseModel(**response)
+
+def resume_mission(client: Robot) -> ResponseModel:
+    """
+    Resume the robot's paused mission.
+
+    Args:
+        client (Robot): API client
+
+    Returns:
+        ResponseModel: Result of the request
+    """
+    response = client.post("/api/v1/tasks/resume")
+    return ResponseModel(**response)
+
+def clear_all_tasks(client: Robot) -> ResponseModel:
+    """
+    Clear all tasks from the robot's mission.
+
+    Args:
+        client (Robot): API client
+
+    Returns:
+        ResponseModel: Result of the request
+    """
+    response = client.post("/api/v1/tasks/clear")
+    return ResponseModel(**response)
